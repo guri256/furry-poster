@@ -20,6 +20,7 @@ class SoFurry(Website):
 		story = ''.join(story.readlines())
 
 		page = s.get('https://www.sofurry.com/upload/details?contentType=0')
+		page.raise_for_status()
 		secret = bs4.BeautifulSoup(page.content,'html.parser').find('input',{'name':'UploadForm[P_id]'})['value']
 		token = re.search("site_csrf_token_value = \'(.*)\'", page.text).group(1)
 
@@ -33,9 +34,24 @@ class SoFurry(Website):
 		page = s.post('https://www.sofurry.com/upload/details?contentType=0', files=uploadFiles, data=params)
 		if page.status_code != 200: raise WebsiteError('SoFurry story upload failed')
 
-	def testAuthentication(self):
+	def login(self, username: str, password: str):
+		params = {'YII_CSRF_TOKEN': "",
+			'LoginForm[sfLoginUsername]':username,
+			'LoginForm[sfLoginPassword]':password,
+			'yt1': "Login"
+		}
 		
+		s = requests.Session()
+		s.cookies = self.cookie
+		page = s.post("https://www.sofurry.com/user/login", data=params)
+		page.raise_for_status()
+		if page.status_code != 200 and page.status_code != 302:
+			raise WebsiteError('SoFurry login failed')
+
+
+	def testAuthentication(self):
 		testpage = requests.get("https://sofurry.com/upload", cookies=self.cookie)
+		testpage.raise_for_status()
 		if 'Access Denied' in testpage.text: raise AuthenticationError("SoFurry authentication failed")
 
 	def validateTags(self, tags: str) -> str:

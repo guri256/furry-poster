@@ -109,6 +109,8 @@ def main():
 		ends = ['.mmd','.md']
 	elif args.format == 'html':
 		ends = ['.html']
+	else:
+		raise Exception('unknown file format: '+args.format)
 
 	for file, ending in ((file, ending) for ending in ends for file in os.listdir(args.directory)):
 		if file.endswith(ending): 

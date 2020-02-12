@@ -15,6 +15,7 @@ class Weasyl(Website):
 
 	def testAuthentication(self):
 		page = requests.get('https://www.weasyl.com/messages/notifications', cookies=self.cookie)
+		page.raise_for_status()
 		if 'You must be signed in to perform this operation.' in page.text: raise AuthenticationError('Weasyl authentication failed')
 	
 	def submitStory(self, title: str, description: str, tags: str, passedRating: str, story: TextIO, thumbnail):
@@ -24,6 +25,7 @@ class Weasyl(Website):
 		tags = self.validateTags(tags)
 
 		page = s.get('https://www.weasyl.com/submit/literary')
+		page.raise_for_status()
 		token = bs4.BeautifulSoup(page.content,'html.parser').find('input',{'name':'token'})['value']
 
 		if thumbnail is not None: uploadFiles = {'submitfile':story, 'coverfile':thumbnail}

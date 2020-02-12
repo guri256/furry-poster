@@ -12,6 +12,10 @@ class Website(ABC):
 		self.name = name
 		self.preferredFormat = preferredFormat
 		self.ratings = ratings
+		self.cookie = None
+		
+	def load(self, cookies):
+		self.cookie = cookies
 
 	def load(self, cookies):
 		self.cookie = cookies
@@ -20,6 +24,11 @@ class Website(ABC):
 	def submitStory(self, title: str, description: str, tags: str, rating: str, story: TextIO, thumbnail):
 		"""Send story and submit it via website mechanisms"""
 		pass
+
+	@abstractmethod
+	def login(self, username: str, password: str):
+		"""Create the initial cookiejar for the user"""
+		raise Exception("Not Implemented")
 
 	@abstractmethod
 	def testAuthentication(self):

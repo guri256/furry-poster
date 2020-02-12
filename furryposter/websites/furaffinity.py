@@ -22,12 +22,14 @@ class FurAffinity(Website):
 
 		#type selection
 		page = s.post('http://www.furaffinity.net/submit/', data={'part': 2, 'submission_type':'story'})
+		page.raise_for_status()
 		key = bs4.BeautifulSoup(page.content, 'html.parser').find('input', {'name':'key'})['value']
 
 		#file upload stage
 		if thumbnail is not None: uploadFiles = {'submission': story, 'thumbnail':thumbnail}
 		else: uploadFiles = {'submission':story}
 		page = s.post('http://www.furaffinity.net/submit/', data={'part': 3, 'submission_type':'story', 'key':key}, files=uploadFiles)
+		page.raise_for_status()
 		if 'Error encountered' in page.text: raise WebsiteError('Error encounted with file upload')
 
 		#final stage
@@ -41,12 +43,14 @@ class FurAffinity(Website):
 			'scrap': 0}
 
 		page = s.post('https://www.furaffinity.net/submit/story/4', data=params)
+		page.raise_for_status()
 		if 'Security code missing or invalid' in page.text or 'view' not in page.url: raise WebsiteError("FurAffinity submission failed")
 
 	def testAuthentication(self):
 		"""Test that the user is properly authenticated on the site"""
 		#try to get a restricted page and error on bad result
 		testpage = requests.get("https://www.furaffinity.net/controls/settings/", cookies=self.cookie)
+		testpage.raise_for_status()
 		if "Please log in!" in testpage.text: raise AuthenticationError("FurAffinity authentication failed")
 
 
